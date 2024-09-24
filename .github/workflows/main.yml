@@ -1,0 +1,94 @@
+name: CI
+
+on: [push]
+
+jobs:
+  sast_scan:
+    name: Running Static Application Security test (SAST)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.8
+
+    - name: Install Bandit
+      run: pip install bandit
+
+    - name: Run Bandit Scan
+      continue-on-error: true
+      run: bandit -r . -f json -o bandit-report.json
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: bandit-findings
+        path: bandit-report.json
+
+  image_scan:
+    name: Building Image and Running Image Scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build Docker Image
+      run: docker build -f Dockerfile -t imperva-demo-py-api:latest .
+
+    - name: Docker Scout Scan
+      uses: docker/scout-action@v1.13.0
+      with:
+        dockerhub-user: ${{ secrets.DOCKERHUB_USERNAME }}
+        dockerhub-password: ${{ secrets.DOCKERHUB_PASSWORD }}
+        command: quickview,cves
+        only-severities: critical,high
+        sarif-file: scout-report.sarif
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: docker-scout-findings
+        path: scout-report.sarif
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3.3.0
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v6.7.0
+      with:
+        push: true
+        tags: darshandkd/imperva-demo-v2-py-api:latest
+        sbom: true
+
+    # # Step 5: Start the API container
+    # - name: Run the API container
+    #   run: |
+    #     docker run -d -p 5000:80 --name imperva-demo-py-api darshandkd/imperva-demo-py-api:latest
+    #     sleep 15  # Give the container time to initialize
+    # # Step 6: Run OWASP ZAP scan against the API
+    # - name: Run OWASP ZAP API Scan
+    #   continue-on-error: true
+    #   run: |
+    #     docker run -v $(pwd):/zap/wrk/:rw --user="zap" ghcr.io/zaproxy/zaproxy:stable zap-api-scan.py \
+    #       -t http://localhost:5000/api \
+    #       -f openapi \
+    #       -r /zap/wrk/zap_report.html
+    # # Step 7: Upload ZAP Report as artifact
+    # - name: Upload ZAP Scan Report
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: ZAP Report
+    #     path: ./zap_report.html
