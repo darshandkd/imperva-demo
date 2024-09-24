@@ -93,7 +93,7 @@ jobs:
 
     - name: Run OWASP ZAP API Scan
       run: |
-        docker run -v $(pwd):/zap/wrk/:rw owasp/zap2docker-stable zap-api-scan.py \
+        docker run -v $(pwd):/zap/wrk/:rw ghcr.io/zaproxy/zaproxy:stable zap-api-scan.py \
           -t http://localhost:5000/v2/api-docs \
           -f openapi \
           -r zap_report.html
