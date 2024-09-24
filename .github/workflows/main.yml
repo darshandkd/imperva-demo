@@ -114,6 +114,7 @@ jobs:
         run: pip install openai
 
       - name: Analyze Reports with ChatGPT
+        continue-on-error: true
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |

@@ -7,6 +7,8 @@ import os
           as it is a matter of bad practice. Such an example is the debug endpoint.
 '''
 
+DUMMY_API_KEY = "sk_test_4eC39HqLyjWDarjtT1zdp7dc" # Example of a dummy secret
+
 vuln = int(os.getenv('vulnerable', 1))
 # vuln=1
 # token alive for how many seconds?
