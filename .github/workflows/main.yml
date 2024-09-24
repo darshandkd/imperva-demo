@@ -73,22 +73,21 @@ jobs:
         tags: darshandkd/imperva-demo-v2-py-api:latest
         sbom: true
 
-    # # Step 5: Start the API container
-    # - name: Run the API container
-    #   run: |
-    #     docker run -d -p 5000:80 --name imperva-demo-py-api darshandkd/imperva-demo-py-api:latest
-    #     sleep 15  # Give the container time to initialize
-    # # Step 6: Run OWASP ZAP scan against the API
-    # - name: Run OWASP ZAP API Scan
-    #   continue-on-error: true
-    #   run: |
-    #     docker run -v $(pwd):/zap/wrk/:rw --user="zap" ghcr.io/zaproxy/zaproxy:stable zap-api-scan.py \
-    #       -t http://localhost:5000/api \
-    #       -f openapi \
-    #       -r /zap/wrk/zap_report.html
-    # # Step 7: Upload ZAP Report as artifact
-    # - name: Upload ZAP Scan Report
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #     name: ZAP Report
-    #     path: ./zap_report.html
+    - name: Run the API container
+      run: |
+        docker run -d -p 5000:5000 darshandkd/imperva-demo-v2-py-api:latest
+        sleep 5  # Give the container time to initialize
+
+    - name: Run OWASP ZAP API Scan
+      run: |
+        docker run -v $(pwd):/zap/wrk/:rw owasp/zap2docker-stable zap-api-scan.py \
+          -t http://localhost:5000/v2/api-docs \
+          -f openapi \
+          -r zap_report.html \
+          -d
+
+    - name: Upload ZAP Scan Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: ZAP Report
+        path: ./zap_report.html
