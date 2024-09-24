@@ -13,7 +13,6 @@ vuln_app.app.config['SECRET_KEY'] = 'random'
 # start the db
 db = SQLAlchemy(vuln_app.app)
 
-
 @vuln_app.app.errorhandler(401)
 def custom_401(error):
     # Custom 401 to match the original response sent by Vampi

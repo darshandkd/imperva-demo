@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: VAmPI
+  title: VAmPI - Imperva Demo
   description: OpenAPI v3 specs for VAmPI
   version: '0.1'
 servers:
