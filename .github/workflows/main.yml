@@ -55,7 +55,6 @@ jobs:
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
-      if: always()
       with:
         name: docker-scout-findings
         path: scout-report.sarif
@@ -72,20 +71,6 @@ jobs:
         push: true
         tags: darshandkd/imperva-demo-v2-py-api:latest
         sbom: true
-
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v3.3.0
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-    - name: Build and push Docker images
-      uses: docker/build-push-action@v6.7.0
-      with:
-        push: true
-        tags: darshandkd/imperva-demo-v2-py-api:latest
-        sbom: true
-
 
   # chatgpt_analysis:
   #     name: Analyze Reports with ChatGPT
