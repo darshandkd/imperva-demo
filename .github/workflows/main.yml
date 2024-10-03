@@ -86,7 +86,7 @@ jobs:
             uses: azure/login@v1
             with:
               creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
+
   # chatgpt_analysis:
   #     name: Analyze Reports with ChatGPT
   #     runs-on: ubuntu-latest
